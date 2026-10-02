@@ -1,25 +1,34 @@
 <title>Yintjingga Visitor Safety</title>
 <style>
-/* Layout: one column, two views (visitor app, ranger console) switched by a tab bar.
-   Tokens come from the kiosk prototype's app.css, which follows the presentation deck. */
 /* Yintjingga VMSS prototype
+   Layout: one readable column; big touch targets; status shown by colour AND words.
    Palette follows the presentation deck: near-black ground, cream text, gold accent.
    All fonts are system fonts - no external requests, so the app works with zero network. */
 
 :root {
   --bg: #12120f;
-  --panel: #1c1c18;
-  --panel-2: #23231e;
-  --line: #35352c;
+  --panel: #1b1b16;
+  --panel-2: #24241d;
+  --line: #36362c;
+  --line-strong: #4d4c3d;
   --ink: #f6f3ec;
-  --ink-dim: #b4b0a4;
+  --ink-dim: #bdb8a9;
   --gold: #c89b3c;
+  --gold-bright: #dcb256;
   --gold-dim: #8a6c2a;
-  --high: #e8705c;
-  --moderate: #c89b3c;
-  --info: #6fb3a8;
-  --ok: #7fae6a;
-  --radius: 10px;
+  --gold-wash: rgba(200, 155, 60, 0.12);
+  --high: #ef7d68;
+  --high-wash: rgba(239, 125, 104, 0.13);
+  --moderate: #dcb256;
+  --info: #7cc2b6;
+  --ok: #8fc078;
+  --ok-wash: rgba(143, 192, 120, 0.13);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --tap: 48px;
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -27,60 +36,128 @@
 /* Author display rules (e.g. .actions) would otherwise beat the hidden attribute. */
 [hidden] { display: none !important; }
 
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 
 body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-body);
   line-height: 1.55;
-  font-size: 16px;
+  font-size: 17px;
 }
 
-.wrap { max-width: 880px; margin: 0 auto; padding: 0 16px 64px; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 0 16px 96px; }
+.wrap.wide { max-width: 980px; }
+
+h1, h2, h3 { text-wrap: balance; }
 
 /* ---------- header ---------- */
 
 .topbar {
   border-bottom: 1px solid var(--line);
-  background: linear-gradient(180deg, #1a1a15, var(--bg));
-  padding: 14px 0;
+  background: rgba(18, 18, 15, 0.94);
+  backdrop-filter: blur(8px);
+  padding: 12px 0;
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
-.topbar .wrap { padding-bottom: 0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.topbar .wrap { padding-bottom: 0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; max-width: 980px; }
 
-.brand { flex: 1 1 auto; min-width: 200px; }
+.brand { flex: 1 1 auto; min-width: 190px; display: flex; align-items: center; gap: 11px; }
+
+.brand-mark { flex: 0 0 auto; width: 34px; height: 34px; }
 
 .brand h1 {
-  font-size: 1.05rem;
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  font-weight: 600;
   margin: 0;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  line-height: 1.2;
 }
 
-.brand p {
-  margin: 2px 0 0;
-  font-size: 0.78rem;
-  color: var(--ink-dim);
-}
+.brand p { margin: 1px 0 0; font-size: 0.78rem; color: var(--ink-dim); }
 
 .pill {
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 5px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   color: var(--ink-dim);
   white-space: nowrap;
 }
 
-.pill.is-online { border-color: var(--ok); color: var(--ok); }
-.pill.is-offline { border-color: var(--moderate); color: var(--moderate); }
+.pill.is-online { border-color: var(--ok); color: var(--ok); background: var(--ok-wash); }
+.pill.is-offline { border-color: var(--moderate); color: var(--moderate); background: var(--gold-wash); }
+
+/* segmented view switch */
+.tabs {
+  display: flex;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+}
+
+.tab {
+  min-height: 40px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-dim);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tab[aria-selected="true"] { background: var(--gold); color: #1a1408; }
+
+/* ---------- hero ---------- */
+
+.hero { padding: 28px 0 6px; }
+
+.eyebrow {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 8px;
+}
+
+.hero h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 6vw, 2.4rem);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 10px;
+}
+
+.hero p { margin: 0 0 16px; color: var(--ink-dim); max-width: 34em; }
+
+.facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; padding: 0; list-style: none; }
+
+.fact {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  font-size: 0.85rem;
+}
+
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ink-dim); flex: 0 0 auto; }
+.dot.high { background: var(--high); }
+.dot.moderate { background: var(--moderate); }
+.dot.info { background: var(--info); }
+.dot.ok { background: var(--ok); }
 
 /* ---------- cards ---------- */
 
@@ -88,211 +165,488 @@ body {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 18px;
-  margin-top: 18px;
+  padding: 20px;
+  margin-top: 16px;
 }
 
 .card > h2 {
+  font-family: var(--font-display);
   margin: 0 0 12px;
-  font-size: 0.82rem;
-  letter-spacing: 0.12em;
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.step {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--gold);
-  font-weight: 600;
+  margin-bottom: 4px;
 }
 
 .card p { margin: 0 0 10px; }
 .card p:last-child { margin-bottom: 0; }
 
 .ack {
+  background: transparent;
+  border: 0;
   border-left: 3px solid var(--gold);
+  border-radius: 0;
+  padding: 4px 0 4px 18px;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
   font-style: italic;
-  color: var(--ink);
-  background: var(--panel-2);
 }
 
-.muted { color: var(--ink-dim); font-size: 0.85rem; }
+.ack > h2 {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.muted { color: var(--ink-dim); font-size: 0.88rem; }
 
 .placeholder {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-style: normal;
   color: var(--moderate);
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
+  border: 1px dashed var(--gold-dim);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-bottom: 10px;
 }
 
 /* ---------- lists ---------- */
 
-ul.clean { margin: 0; padding-left: 18px; }
-ul.clean li { margin-bottom: 8px; }
-ul.clean li:last-child { margin-bottom: 0; }
+ul.clean { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+
+ul.clean li { position: relative; padding-left: 22px; }
+
+ul.clean li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0.62em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+}
 
 /* ---------- hazards ---------- */
 
 .hazard {
-  display: flex;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  padding: 13px 14px 13px 16px;
+  margin-top: 10px;
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+  border-left: 5px solid var(--ink-dim);
 }
 
-.hazard:last-child { border-bottom: 0; padding-bottom: 0; }
-.hazard:first-of-type { padding-top: 4px; }
+.hazard.high { border-left-color: var(--high); background: var(--high-wash); }
+.hazard.moderate { border-left-color: var(--moderate); }
+.hazard.info { border-left-color: var(--info); }
 
 .chip {
-  flex: 0 0 auto;
-  align-self: flex-start;
-  font-size: 0.66rem;
-  letter-spacing: 0.08em;
+  justify-self: start;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 4px;
-  border: 1px solid currentColor;
-  margin-top: 3px;
 }
 
 .chip.high { color: var(--high); }
 .chip.moderate { color: var(--moderate); }
 .chip.info { color: var(--info); }
 
-.hazard h3 { margin: 0 0 3px; font-size: 0.97rem; font-weight: 600; }
-.hazard p { margin: 0; color: var(--ink-dim); font-size: 0.88rem; }
+.hazard h3 { margin: 0; font-size: 1.02rem; font-weight: 650; }
+.hazard p { margin: 0; color: var(--ink-dim); font-size: 0.92rem; }
+.hazard > div { display: grid; gap: 3px; }
 
 /* ---------- map ---------- */
 
 .map-frame {
   background: var(--panel-2);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 8px;
+  border-radius: var(--radius-sm);
+  padding: 6px;
+  margin-bottom: 12px;
 }
 
-.map-frame svg { display: block; width: 100%; height: auto; }
+.map-frame svg, .map-frame img { display: block; width: 100%; height: auto; border-radius: 6px; }
+
+.legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+
+.legend li { display: flex; align-items: center; gap: 10px; font-size: 0.92rem; }
+
+.num {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #1a1408;
+  font-weight: 700;
+  font-size: 0.82rem;
+  display: grid;
+  place-items: center;
+}
 
 /* ---------- form ---------- */
 
-.field { margin-bottom: 16px; }
+.field { margin-bottom: 22px; }
 
-label {
+label, .label {
   display: block;
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-dim);
-  margin-bottom: 6px;
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: var(--ink);
+  margin-bottom: 8px;
 }
+
+.hint { display: block; font-weight: 400; color: var(--ink-dim); font-size: 0.85rem; margin-top: 2px; }
 
 input[type="text"],
 input[type="number"],
 input[type="datetime-local"],
 select {
   width: 100%;
-  padding: 11px 12px;
+  min-height: var(--tap);
+  padding: 11px 14px;
   background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-sm);
   color: var(--ink);
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-family: inherit;
 }
 
-input:focus, select:focus, button:focus {
-  outline: 2px solid var(--gold);
-  outline-offset: 1px;
+input::placeholder { color: #8d897c; }
+
+input:focus-visible, select:focus-visible, button:focus-visible, .route-card:focus-within {
+  outline: 3px solid var(--gold-bright);
+  outline-offset: 2px;
 }
 
-.check {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  font-size: 0.9rem;
-  color: var(--ink);
-  text-transform: none;
-  letter-spacing: 0;
-  margin-bottom: 0;
+.field.has-error input, .field.has-error .stepper, .field.has-error .check { border-color: var(--high); }
+
+.field-error { color: var(--high); font-size: 0.88rem; font-weight: 600; margin-top: 6px; }
+
+/* party-size stepper */
+.stepper { display: inline-flex; align-items: center; gap: 6px; }
+
+.stepper input {
+  width: 76px;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
-.check input { margin-top: 4px; flex: 0 0 auto; width: 18px; height: 18px; }
+.stepper input::-webkit-outer-spin-button,
+.stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-.btn {
-  display: inline-block;
-  padding: 13px 22px;
-  border-radius: 8px;
-  border: 1px solid var(--gold);
-  background: var(--gold);
-  color: #1a1408;
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+.step-btn {
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  background: transparent;
+  color: var(--gold);
+  font-size: 1.5rem;
+  line-height: 1;
   cursor: pointer;
   font-family: inherit;
 }
 
-.btn:hover { background: #d8ab4c; }
+.step-btn:hover { background: var(--gold-wash); }
 
-.btn.secondary {
-  background: transparent;
-  color: var(--gold);
+/* route picker */
+.routes { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+
+.route-card {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  min-height: 68px;
+  margin: 0;
+  padding: 12px 14px 12px 46px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--line-strong);
+  background: var(--panel-2);
+  cursor: pointer;
+  font-weight: 650;
 }
 
-.btn.secondary:hover { background: rgba(200, 155, 60, 0.12); }
+.route-card input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
 
-.btn.small { padding: 7px 12px; font-size: 0.8rem; }
+.route-card::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  border-radius: 50%;
+  border: 2px solid var(--ink-dim);
+}
+
+.route-card:has(input:checked) { border-color: var(--gold); background: var(--gold-wash); }
+.route-card:has(input:checked)::before { border-color: var(--gold); background: radial-gradient(var(--gold) 0 45%, transparent 50%); }
+
+.route-card small { font-weight: 400; color: var(--ink-dim); font-size: 0.84rem; }
+
+/* quick return-time choices */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+
+.pick {
+  min-height: 42px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--panel-2);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pick:hover { border-color: var(--gold); }
+.pick[aria-pressed="true"] { border-color: var(--gold); background: var(--gold-wash); color: var(--gold-bright); }
+.pick.demo { border-style: dashed; }
+
+.back-by { margin-top: 8px; font-size: 0.95rem; color: var(--gold-bright); font-weight: 600; }
+
+.check {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 0.97rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 0;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--line-strong);
+  background: var(--panel-2);
+  cursor: pointer;
+}
+
+.check input { margin-top: 2px; flex: 0 0 auto; width: 22px; height: 22px; accent-color: var(--gold); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--tap);
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--gold);
+  background: var(--gold);
+  color: #1a1408;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.btn:hover { background: var(--gold-bright); border-color: var(--gold-bright); }
+.btn.block { width: 100%; font-size: 1.08rem; min-height: 56px; }
+
+.btn.secondary { background: transparent; color: var(--gold-bright); }
+.btn.secondary:hover { background: var(--gold-wash); }
+
+.btn.quiet { background: transparent; border-color: var(--line-strong); color: var(--ink-dim); }
+.btn.quiet:hover { border-color: var(--ink-dim); color: var(--ink); background: transparent; }
+
+.btn.small { min-height: 40px; padding: 7px 14px; font-size: 0.86rem; }
 
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ---------- messages ---------- */
 
 .msg {
-  border-radius: 8px;
-  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  padding: 13px 15px;
   margin-bottom: 14px;
-  font-size: 0.9rem;
+  font-size: 0.94rem;
+  border: 1px solid var(--line-strong);
 }
 
-.msg.error { background: rgba(232, 112, 92, 0.12); border: 1px solid var(--high); color: #f3b3a6; }
-.msg.ok { background: rgba(127, 174, 106, 0.12); border: 1px solid var(--ok); color: #b7d8a8; }
-.msg.warn { background: rgba(200, 155, 60, 0.12); border: 1px solid var(--gold); color: #e3c384; }
+.msg.error { background: var(--high-wash); border-color: var(--high); color: #ffd3ca; }
+.msg.ok { background: var(--ok-wash); border-color: var(--ok); color: #d3ecc6; }
+.msg.warn { background: var(--gold-wash); border-color: var(--gold-dim); color: #ecd29a; }
+.msg.note { background: transparent; color: var(--ink-dim); font-size: 0.85rem; }
+
+.msg ul.clean li::before { background: currentColor; }
+
+/* ---------- check-in ticket ---------- */
 
 .receipt {
-  border: 1px solid var(--gold);
+  border: 1.5px solid var(--gold);
   border-radius: var(--radius);
-  padding: 16px;
   background: var(--panel-2);
+  overflow: hidden;
+}
+
+/* kiosk ticket has no head/body split */
+.receipt:not(:has(.receipt-head)) { padding: 16px 18px; }
+
+.receipt-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 16px 18px;
+  background: var(--gold-wash);
+  border-bottom: 1px dashed var(--gold-dim);
 }
 
 .receipt .id {
-  font-size: 1.6rem;
+  font-family: var(--font-display);
+  font-size: 2rem;
   font-weight: 700;
-  color: var(--gold);
-  letter-spacing: 0.06em;
-  margin: 4px 0 10px;
+  color: var(--gold-bright);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
+
+.receipt-body { padding: 16px 18px; display: grid; gap: 12px; }
+
+.kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 0; }
+.kv dt { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-dim); }
+.kv dd { margin: 2px 0 0; font-weight: 600; }
+
+.countdown { font-size: 1.15rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ok); }
+.countdown.late { color: var(--high); }
+
+/* ---------- emergency ---------- */
+
+.card.emergency { border-color: var(--high); }
+.card.emergency > h2 { color: #ffd3ca; }
+
+.numbers { display: grid; gap: 8px; margin-top: 14px; }
+
+.number {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+}
+
+.number span { color: var(--ink-dim); font-size: 0.88rem; }
+.number strong { font-size: 1.08rem; user-select: all; }
 
 /* ---------- ranger console ---------- */
 
-.tiles {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px;
-  margin-top: 18px;
-}
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
 
 .tile {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 16px;
+  padding: 14px 16px;
+  min-width: 0;
 }
 
-.tile .n { font-size: 2rem; font-weight: 700; line-height: 1.1; }
-.tile .l { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-dim); margin-top: 4px; }
-.tile.overdue { border-color: var(--high); }
+.tile .n { font-family: var(--font-display); font-size: 2.3rem; font-weight: 700; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.tile .l { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-dim); margin-top: 4px; }
+.tile.overdue.is-active { border-color: var(--high); background: var(--high-wash); }
 .tile.overdue .n { color: var(--high); }
-.tile.on-country .n { color: var(--gold); }
+.tile.on-country .n { color: var(--gold-bright); }
 .tile.returned .n { color: var(--ok); }
 
-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.alert {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 14px;
+  padding: 15px 16px;
+  border-radius: var(--radius);
+  background: var(--high-wash);
+  border: 1.5px solid var(--high);
+  color: #ffd3ca;
+}
+
+.alert strong { display: block; font-size: 1.05rem; color: #fff0ec; }
+
+.pulse {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--high);
+  animation: pulse 1.6s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(239, 125, 104, 0.6); }
+  100% { box-shadow: 0 0 0 12px rgba(239, 125, 104, 0); }
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 26px 0 0;
+}
+
+.parties { display: grid; gap: 10px; margin-top: 12px; }
+
+.party {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px 16px;
+  align-items: center;
+  padding: 15px 16px 15px 18px;
+  border-radius: var(--radius);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 6px solid var(--gold);
+}
+
+.party.overdue { border-left-color: var(--high); background: var(--high-wash); border-color: var(--high); }
+.party.returned { border-left-color: var(--ok); opacity: 0.78; }
+
+.party-main { min-width: 0; display: grid; gap: 4px; }
+.party-id { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.party-route { font-weight: 600; }
+.party-meta { color: var(--ink-dim); font-size: 0.88rem; overflow-wrap: anywhere; }
+
+.party-side { display: grid; gap: 8px; justify-items: end; text-align: right; }
+.party-time { font-weight: 700; font-variant-numeric: tabular-nums; }
+.party.overdue .party-time { color: var(--high); font-size: 1.1rem; }
+.party.returned .party-time { color: var(--ok); }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 
 th {
   text-align: left;
@@ -302,89 +656,125 @@ th {
   color: var(--ink-dim);
   padding: 8px 10px;
   border-bottom: 1px solid var(--line);
-  font-weight: 600;
+  font-weight: 700;
 }
 
-td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+td { padding: 12px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 
-tr.overdue { background: rgba(232, 112, 92, 0.08); }
-tr.overdue td:first-child { box-shadow: inset 3px 0 0 var(--high); }
+tr.overdue { background: var(--high-wash); }
+tr.overdue td:first-child { box-shadow: inset 4px 0 0 var(--high); }
 tr.returned { color: var(--ink-dim); }
 
-.status { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; }
-.status.overdue { color: var(--high); font-weight: 700; }
-.status.on-country { color: var(--gold); }
+.status {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+
+.status.overdue { color: var(--high); }
+.status.on-country { color: var(--gold-bright); }
 .status.returned { color: var(--ok); }
 
 .tag {
   margin-left: 8px;
-  font-size: 0.62rem;
+  font-family: var(--font-body);
+  font-size: 0.64rem;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 2px 6px;
+  padding: 2px 7px;
   border-radius: 4px;
   border: 1px dashed var(--gold-dim);
   color: var(--gold);
+  vertical-align: middle;
 }
 
 .demo-banner { margin: 18px 0 0; font-weight: 600; }
 
 .table-scroll { overflow-x: auto; }
 
-.empty { color: var(--ink-dim); padding: 24px 0; text-align: center; font-size: 0.9rem; }
+.empty {
+  color: var(--ink-dim);
+  padding: 28px 16px;
+  text-align: center;
+  font-size: 0.95rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius);
+  margin-top: 12px;
+}
 
-.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* ---------- sticky call to action (phones) ---------- */
+
+.cta-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: rgba(18, 18, 15, 0.96);
+  border-top: 1px solid var(--line);
+}
+
+.cta-bar .btn { width: 100%; max-width: 728px; margin: 0 auto; display: flex; }
 
 /* ---------- footer ---------- */
 
 footer {
-  margin-top: 28px;
+  margin-top: 32px;
   padding-top: 16px;
   border-top: 1px solid var(--line);
   color: var(--ink-dim);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
 }
 
 footer p { margin: 0 0 6px; }
 
-@media (max-width: 520px) {
-  .topbar .wrap { gap: 8px; }
-  .brand h1 { font-size: 0.95rem; }
-  .card { padding: 15px; }
-  .hazard { gap: 9px; }
+@media (max-width: 560px) {
+  .card { padding: 17px 16px; }
+  .tile { padding: 12px; }
+  .tile .n { font-size: 1.9rem; }
+  .tile .l { font-size: 0.64rem; letter-spacing: 0.06em; }
+  .party { grid-template-columns: minmax(0, 1fr); }
+  .party-side { justify-items: start; text-align: left; grid-auto-flow: column; justify-content: space-between; align-items: center; }
+  .tabs { width: 100%; }
+  .tab { flex: 1; padding: 8px 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .pulse { animation: none; }
 }
 
 
 /* ---- hosted-preview additions ---- */
-:root { color-scheme: dark; }
 .topbar { top: env(safe-area-inset-top, 0px); }
-.tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-.tab {
-  padding: 9px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: transparent;
-  color: var(--ink-dim);
-  font: inherit;
-  font-size: 0.82rem;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-}
-.tab[aria-selected="true"] { border-color: var(--gold); color: var(--gold); }
-.preview-note { margin: 18px 0 0; }
-.map-frame svg { display: block; width: 100%; height: auto; }
-td, th { white-space: nowrap; }
-td.wrapcell { white-space: normal; min-width: 150px; }
 </style>
 
 <header class="topbar">
   <div class="wrap">
     <div class="brand">
-      <h1>Yintjingga Visitor Safety</h1>
-      <p>Ranger Base Kiosk · Lama Lama National Park (CYPAL)</p>
+      <svg class="brand-mark" viewBox="0 0 512 512" aria-hidden="true">
+        <rect width="512" height="512" rx="120" fill="#24241d"/>
+        <circle cx="256" cy="228" r="118" fill="none" stroke="#c89b3c" stroke-width="30"/>
+        <circle cx="256" cy="228" r="46" fill="#c89b3c"/>
+        <path d="M256 346 L256 420" stroke="#c89b3c" stroke-width="30" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1>Yintjingga Visitor Safety</h1>
+        <p>Ranger Base · Lama Lama National Park (CYPAL)</p>
+      </div>
     </div>
-    <div class="tabs" role="tablist">
-      <button class="tab" role="tab" id="tab-visitor" aria-selected="true">Visitor check-in</button>
+    <div class="tabs" role="tablist" aria-label="View">
+      <button class="tab" role="tab" id="tab-visitor" aria-selected="true">Visitor</button>
       <button class="tab" role="tab" id="tab-ranger" aria-selected="false">Ranger console</button>
     </div>
   </div>
@@ -392,28 +782,31 @@ td.wrapcell { white-space: normal; min-width: 150px; }
 
 <main class="wrap">
 
-  <div class="msg warn preview-note">
-    Online preview of the kiosk prototype. Check-ins are saved in this browser only,
-    so use both tabs on the same device. Please do not enter real phone numbers.
-  </div>
-
   <!-- ================= visitor ================= -->
   <div id="view-visitor">
+
+    <section class="hero">
+      <p class="eyebrow">Welcome to Lama Lama Country</p>
+      <h2>Check in before you leave the Ranger Base</h2>
+      <p>It takes about a minute. Rangers use your return time to know when to start looking for you, because phones do not work out here.</p>
+      <ul class="facts" id="facts"></ul>
+      <a class="btn" href="#checkin" id="hero-cta">Start check-in</a>
+    </section>
 
     <section class="card ack" id="ack">
       <h2>Acknowledgement to Country</h2>
     </section>
 
     <section class="card" id="protocols">
-      <h2>Before you go onto Country</h2>
+      <h2><span class="step">Step 1 of 3</span>Respect Country</h2>
     </section>
 
     <section class="card" id="hazards">
-      <h2>Current hazards &amp; closures</h2>
+      <h2><span class="step">Step 2 of 3</span>Know today's hazards</h2>
     </section>
 
     <section class="card" id="map">
-      <h2>Where you are going</h2>
+      <h2>Where you can go</h2>
       <div class="map-frame"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img"
      aria-label="Schematic map showing the Ranger Base, four visitor routes and a closed area">
   <title>Schematic visitor map</title>
@@ -492,48 +885,60 @@ td.wrapcell { white-space: normal; min-width: 150px; }
 </svg></div>
     </section>
 
-    <section class="card">
-      <h2>Check in</h2>
-      <p class="muted">
-        Check in before you leave the Ranger Base. The expected return time you give
-        is what triggers a search if you do not come back.
-      </p>
-
-      <div id="form-msg"></div>
+    <section class="card" id="checkin">
+      <h2><span class="step">Step 3 of 3</span>Check in</h2>
 
       <form id="checkin-form" novalidate>
-        <div class="field">
-          <label for="party_size">Number in your party</label>
-          <input type="number" id="party_size" min="1" max="20" value="2" required>
+        <div class="field" id="f-size">
+          <label for="party_size">How many people are in your party?</label>
+          <div class="stepper">
+            <button type="button" class="step-btn" id="size-minus" aria-label="One fewer person">−</button>
+            <input type="number" id="party_size" min="1" max="20" value="2" inputmode="numeric" required>
+            <button type="button" class="step-btn" id="size-plus" aria-label="One more person">+</button>
+          </div>
         </div>
-        <div class="field">
-          <label for="route">Where are you going?</label>
-          <select id="route" required></select>
+
+        <div class="field" id="f-route">
+          <span class="label" id="route-label">Where are you going?</span>
+          <div class="routes" id="routes" role="radiogroup" aria-labelledby="route-label"></div>
         </div>
-        <div class="field">
-          <label for="expected_return">Expected return to the Ranger Base</label>
+
+        <div class="field" id="f-return">
+          <label for="expected_return">When will you be back at the Ranger Base?
+            <span class="hint">If you are not back by then, rangers start a search.</span>
+          </label>
+          <div class="chips" id="return-chips">
+            <button type="button" class="pick" data-mins="typical" aria-pressed="true">Typical for this route</button>
+            <button type="button" class="pick" data-mins="60" aria-pressed="false">In 1 hour</button>
+            <button type="button" class="pick" data-mins="120" aria-pressed="false">In 2 hours</button>
+            <button type="button" class="pick" data-mins="240" aria-pressed="false">In 4 hours</button>
+            <button type="button" class="pick demo" data-mins="1" aria-pressed="false">In 1 minute (to try the overdue alert)</button>
+          </div>
           <input type="datetime-local" id="expected_return" required>
-          <p class="muted" style="margin-top:6px">
-            To see the overdue alert, <button type="button" class="btn secondary small" id="plus1">set it to 1 minute from now</button>
-          </p>
+          <div class="back-by" id="back-by"></div>
         </div>
-        <div class="field">
-          <label for="emergency_contact">Emergency contact name &amp; phone</label>
-          <input type="text" id="emergency_contact" placeholder="Name and phone number" required>
+
+        <div class="field" id="f-contact">
+          <label for="emergency_contact">Emergency contact
+            <span class="hint">Someone who is not travelling with you. Online preview: please use a made-up number.</span>
+          </label>
+          <input type="text" id="emergency_contact" placeholder="Name and phone number" autocomplete="off" required>
         </div>
-        <div class="field">
+
+        <div class="field" id="f-ack">
           <label class="check">
             <input type="checkbox" id="cultural_ack" required>
-            <span>I have read the cultural protocols and I understand which areas are closed to visitors.</span>
+            <span>I have read the cultural protocols and I know which areas are closed to visitors.</span>
           </label>
         </div>
-        <button type="submit" class="btn">Check in</button>
+
+        <button type="submit" class="btn block">Check in</button>
       </form>
 
       <div id="receipt" hidden></div>
     </section>
 
-    <section class="card" id="emergency">
+    <section class="card emergency" id="emergency">
       <h2>If something goes wrong</h2>
     </section>
   </div>
@@ -541,46 +946,44 @@ td.wrapcell { white-space: normal; min-width: 150px; }
   <!-- ================= ranger ================= -->
   <div id="view-ranger" hidden>
 
-    <div class="msg warn demo-banner" id="demo-banner" hidden>
-      SAMPLE DATA: rows tagged “sample” are example parties, not real visitors.
-    </div>
+    <section class="hero">
+      <p class="eyebrow">Ranger console</p>
+      <h2>Who is on Country right now</h2>
+    </section>
 
     <div class="tiles">
       <div class="tile on-country"><div class="n" id="tile-on">0</div><div class="l">On Country</div></div>
-      <div class="tile overdue"><div class="n" id="tile-overdue">0</div><div class="l">Overdue</div></div>
+      <div class="tile overdue" id="tile-overdue-box"><div class="n" id="tile-overdue">0</div><div class="l">Overdue</div></div>
       <div class="tile returned"><div class="n" id="tile-returned">0</div><div class="l">Returned</div></div>
     </div>
 
-    <section class="card">
-      <h2>Register</h2>
-      <div id="alert"></div>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th><th>Party</th><th>Route</th><th>Expected return</th>
-              <th>Contact</th><th>Status</th><th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="rows"></tbody>
-        </table>
-      </div>
-      <div class="empty" id="empty" hidden>No parties on Country. Check in on the Visitor tab and the party appears here.</div>
-    </section>
+    <div id="alert"></div>
 
-    <p class="actions" style="margin-top:18px">
-      <button class="btn secondary small" id="toggle-samples">Hide sample parties</button>
-      <button class="btn secondary small" id="reset">Clear my check-ins</button>
+    <h3 class="section-title">Register</h3>
+    <div class="msg note demo-banner" id="demo-banner" hidden>
+      Rows tagged “sample” are example parties, not real visitors.
+    </div>
+    <div class="parties" id="rows"></div>
+    <div class="empty" id="empty" hidden>No one is on Country. When a visitor checks in, their party appears here.</div>
+
+    <p class="actions" style="margin-top:20px">
+      <button class="btn quiet small" id="toggle-samples">Hide sample parties</button>
+      <button class="btn quiet small" id="reset">Clear my check-ins</button>
     </p>
   </div>
 
   <footer>
+    <p>Online preview: check-ins are saved in this browser only, so use both views on the same device.</p>
     <p id="data-owner"></p>
     <p>Prototype for the EWB Challenge, Design Area 2 · Opportunity 2.4. Content is illustrative and must be approved by the Yintjingga Aboriginal Corporation before use.</p>
-    <p>The kiosk version of this prototype runs on a local server at the Ranger Base, works with no internet, and shares one register between visitor phones and the ranger console.</p>
+    <p>The kiosk version runs on a local server at the Ranger Base, works with no internet, and shares one register between visitor phones and the ranger console.</p>
   </footer>
 
 </main>
+
+<div class="cta-bar" id="cta-bar" hidden>
+  <a class="btn" href="#checkin">Check in</a>
+</div>
 
 <script>
 const content = {"site": {"name": "Yintjingga Visitor Management & Safety System", "kiosk": "Ranger Base Kiosk", "country": "Yintjingga (Port Stewart) · Lama Lama National Park (CYPAL)", "data_owner": "Data captured at this kiosk is held by the Yintjingga Aboriginal Corporation."}, "acknowledgement": {"status": "PLACEHOLDER - confirm exact wording with YAC and your tutor before presenting", "text": "We acknowledge the Lama Lama people, Traditional Owners of Yintjingga (Port Stewart) and Lama Lama National Park (CYPAL). We pay our respects to their Elders, past, present and emerging, and recognise their enduring custodianship of Country."}, "protocols": {"status": "PLACEHOLDER - all wording must be authored and approved by YAC", "items": ["A permit is required before entering Country. Permits are issued by YAC rangers at the Ranger Base.", "Some areas are closed to visitors at all times. Closed areas are shown on the map as 'No access' and are not described further.", "Do not photograph, record or share cultural sites, ceremonies or cultural materials.", "Stay on marked tracks. Do not enter closed areas, even if a track appears open.", "Report any cultural material you encounter to a ranger. Do not move it.", "Freshwater and estuarine areas may be unsafe. Follow ranger advice and posted signage."]}, "hazards": {"updated": "2026-10-02T06:30:00", "note": "Hazard notices are authored by YAC rangers. This page is cached on your device and shows the time it was last updated.", "items": [{"level": "high", "title": "Estuary crocodile activity", "detail": "Saltwater crocodiles are active in the estuary and at the marina. Do not approach the water's edge. Obey all crocodile warning signs."}, {"level": "high", "title": "Tide cut-off - Marina boardwalk", "detail": "The boardwalk is cut off at high tide. Check the tide chart at the kiosk before setting out and allow for your return leg."}, {"level": "moderate", "title": "Fire danger - dry season", "detail": "Dry grass along the coastal track. No open fires. Report smoke to a ranger immediately."}, {"level": "moderate", "title": "Flooded creek crossing", "detail": "Running Creek crossing may be impassable after rain. Do not attempt to cross flowing water."}, {"level": "info", "title": "No mobile coverage", "detail": "There is no mobile phone coverage beyond the Ranger Base. Your phone will not work for calls or emergency SOS on Country."}]}, "emergency": {"note": "There is no mobile phone coverage across most of the park.", "steps": ["Return to the Ranger Base and speak to a ranger, or", "Use a ranger-issued handheld radio if your party has been issued one.", "If a party is overdue, rangers will begin a search from the check-in register - the expected return time you give at check-in is what triggers it."], "numbers": [{"label": "Emergency (works from any phone with coverage)", "value": "000"}, {"label": "Ranger Base (via VHF radio or at the base)", "value": "VHF Ch. 1 - Ranger Base"}, {"label": "QPWS (when back in coverage)", "value": "13 QGOV (13 74 68)"}]}, "map": {"note": "Schematic only - not to scale. Locations of cultural sites are deliberately not shown.", "markers": [{"n": 1, "label": "Ranger Base & Kiosk"}, {"n": 2, "label": "Running Creek crossing"}, {"n": 3, "label": "Marina & estuary boardwalk"}, {"n": 4, "label": "Campground"}, {"n": 5, "label": "Coastal track lookout"}]}, "routes": {"running-creek": {"name": "Running Creek Walk", "typical_hours": 2}, "marina": {"name": "Marina & Estuary Boardwalk", "typical_hours": 1.5}, "campground": {"name": "Ranger Base Campground", "typical_hours": 1}, "coastal-track": {"name": "Coastal Track (north)", "typical_hours": 4}}};
@@ -619,11 +1022,24 @@ const pad = (n) => String(n).padStart(2, '0');
 function localInputValue(d) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
-function fmt(iso) {
-  if (!iso) return '–';
+function clock(d) {
+  return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+function dayAndClock(iso) {
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleString([], { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+  if (Number.isNaN(d.getTime())) return '–';
+  const today = new Date();
+  const sameDay = d.toDateString() === today.toDateString();
+  return sameDay ? clock(d) : `${d.toLocaleDateString([], { day: 'numeric', month: 'short' })}, ${clock(d)}`;
+}
+// "1 h 58 min", "12 min", "40 s"
+function span(ms) {
+  const s = Math.max(0, Math.round(Math.abs(ms) / 1000));
+  if (s < 60) return `${s} s`;
+  const m = Math.round(s / 60);
+  if (m < 60) return `${m} min`;
+  const h = Math.floor(m / 60);
+  return m % 60 ? `${h} h ${m % 60} min` : `${h} h`;
 }
 function relativeTime(iso) {
   const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
@@ -683,107 +1099,126 @@ function markReturned(id) {
     const p = reg.find((x) => x.id === id);
     if (p && !p.checked_out_at) p.checked_out_at = new Date().toISOString();
     writeStore(REG_KEY, reg);
+    if (readStore(MINE_KEY, null) === id) { writeStore(MINE_KEY, null); showForm(); }
   }
   renderRanger();
 }
 
-/* ---------- visitor view ---------- */
+/* ---------- visitor view: content ---------- */
 function renderStatic() {
+  const high = content.hazards.items.filter((h) => h.level === 'high').length;
+  const facts = $('#facts');
+  [
+    ['high', `${high} high-risk hazard${high === 1 ? '' : 's'} today`],
+    ['info', 'No mobile coverage beyond the base'],
+    ['ok', `Hazards updated ${relativeTime(content.hazards.updated)}`],
+  ].forEach(([tone, text]) => facts.appendChild(el('li', { class: 'fact' }, [el('span', { class: `dot ${tone}` }), text])));
+
   const ack = $('#ack');
-  ack.appendChild(el('div', { class: 'placeholder', text: 'Placeholder - confirm with YAC' }));
+  ack.appendChild(el('div', { class: 'placeholder', text: 'Placeholder wording, to be confirmed with YAC' }));
   ack.appendChild(el('p', { text: content.acknowledgement.text }));
 
   const proto = $('#protocols');
-  proto.appendChild(el('div', { class: 'placeholder', text: 'Placeholder - YAC authored' }));
+  proto.appendChild(el('div', { class: 'placeholder', text: 'Placeholder wording, to be written by YAC' }));
   const ul = el('ul', { class: 'clean' });
   content.protocols.items.forEach((t) => ul.appendChild(el('li', { text: t })));
   proto.appendChild(ul);
 
   const haz = $('#hazards');
-  haz.appendChild(el('p', { class: 'muted', text: `Hazards last updated: ${relativeTime(content.hazards.updated)}` }));
+  haz.appendChild(el('p', { class: 'muted', text: `Written by YAC rangers. Last updated ${relativeTime(content.hazards.updated)}.` }));
+  const label = { high: 'High risk', moderate: 'Take care', info: 'Good to know' };
   content.hazards.items.forEach((h) => {
-    haz.appendChild(el('div', { class: 'hazard' }, [
-      el('span', { class: `chip ${h.level}`, text: h.level }),
-      el('div', {}, [el('h3', { text: h.title }), el('p', { text: h.detail })]),
+    haz.appendChild(el('div', { class: `hazard ${h.level}` }, [
+      el('span', { class: `chip ${h.level}`, text: label[h.level] || h.level }),
+      el('h3', { text: h.title }),
+      el('p', { text: h.detail }),
     ]));
   });
 
   const map = $('#map');
-  map.appendChild(el('p', { class: 'muted', text: content.map.note }));
-  const markers = el('ul', { class: 'clean' });
-  content.map.markers.forEach((m) => markers.appendChild(el('li', { text: `${m.n}. ${m.label}` })));
-  map.appendChild(markers);
+  const legend = el('ul', { class: 'legend' });
+  content.map.markers.forEach((m) => legend.appendChild(el('li', {}, [el('span', { class: 'num', text: String(m.n) }), m.label])));
+  map.appendChild(legend);
+  map.appendChild(el('p', { class: 'muted', style: 'margin-top:12px', text: content.map.note }));
 
   const em = $('#emergency');
-  em.appendChild(el('p', { class: 'muted', text: content.emergency.note }));
+  em.appendChild(el('p', { text: content.emergency.note }));
   const steps = el('ul', { class: 'clean' });
   content.emergency.steps.forEach((s) => steps.appendChild(el('li', { text: s })));
   em.appendChild(steps);
-  const nums = el('ul', { class: 'clean' });
-  content.emergency.numbers.forEach((n) => nums.appendChild(el('li', {}, [
-    el('strong', { text: `${n.label}: ` }), document.createTextNode(n.value),
+  const nums = el('div', { class: 'numbers' });
+  content.emergency.numbers.forEach((n) => nums.appendChild(el('div', { class: 'number' }, [
+    el('span', { text: n.label }), el('strong', { text: n.value }),
   ])));
   em.appendChild(nums);
 
   $('#data-owner').textContent = content.site.data_owner;
 
-  const select = $('#route');
-  Object.entries(content.routes).forEach(([key, r]) => select.appendChild(el('option', { value: key, text: r.name })));
-  suggestReturn();
-}
-
-function suggestReturn() {
-  const route = content.routes[$('#route').value];
-  if (route) $('#expected_return').value = localInputValue(new Date(Date.now() + route.typical_hours * 3600000));
-}
-
-function showReceipt(party) {
-  const box = $('#receipt');
-  box.innerHTML = '';
-  box.hidden = false;
-  const out = el('button', { class: 'btn secondary small', type: 'button', text: 'Check out now' });
-  const see = el('button', { class: 'btn small', type: 'button', text: 'See it on the ranger console' });
-  out.addEventListener('click', () => {
-    markReturned(party.id);
-    writeStore(MINE_KEY, null);
-    box.innerHTML = '';
-    box.appendChild(el('div', { class: 'msg ok', text: 'Checked out. Thanks for visiting Country safely.' }));
-    $('#checkin-form').hidden = false;
-    $('#checkin-form').reset();
-    suggestReturn();
+  const routes = $('#routes');
+  Object.entries(content.routes).forEach(([key, r], i) => {
+    const input = el('input', { type: 'radio', name: 'route', id: `route-${key}`, value: key });
+    if (i === 0) input.checked = true;
+    routes.appendChild(el('label', { class: 'route-card', for: `route-${key}` }, [
+      input, r.name, el('small', { text: `Usually about ${span(r.typical_hours * 3600000)}` }),
+    ]));
   });
-  see.addEventListener('click', () => showTab('ranger'));
-  box.appendChild(el('div', { class: 'receipt' }, [
-    el('div', { class: 'muted', text: 'You are checked in' }),
-    el('div', { class: 'id', text: party.id }),
-    el('p', { text: `Party of ${party.party_size} · ${routeName(party.route)}` }),
-    el('p', { class: 'muted', text: `Expected return: ${fmt(party.expected_return)}` }),
-    el('p', { class: 'muted', text: 'If you are not back by this time, rangers will begin a search from this register.' }),
-    el('div', { class: 'actions' }, [see, out]),
-  ]));
-  $('#checkin-form').hidden = true;
+}
+
+/* ---------- visitor view: form ---------- */
+const selectedRoute = () => (document.querySelector('input[name="route"]:checked') || {}).value;
+
+function setReturn(mins) {
+  // datetime-local has minute precision, so round up to stay in the future.
+  const ms = mins === 1 ? 119000 : mins * 60000;
+  $('#expected_return').value = localInputValue(new Date(Date.now() + ms));
+  describeReturn();
+}
+
+function applyPick() {
+  const pressed = document.querySelector('#return-chips .pick[aria-pressed="true"]');
+  if (!pressed) return;
+  const v = pressed.dataset.mins;
+  const route = content.routes[selectedRoute()];
+  setReturn(v === 'typical' ? (route ? route.typical_hours * 60 : 120) : Number(v));
+}
+
+function describeReturn() {
+  const d = new Date($('#expected_return').value);
+  const box = $('#back-by');
+  if (Number.isNaN(d.getTime())) { box.textContent = ''; return; }
+  const diff = d.getTime() - Date.now();
+  box.textContent = diff > 0
+    ? `Back by ${dayAndClock(d)}, in about ${span(diff)}.`
+    : 'That time has already passed. Choose a later time.';
+}
+
+function fieldError(fieldId, message) {
+  const f = $(fieldId);
+  f.classList.add('has-error');
+  f.appendChild(el('div', { class: 'field-error', text: message }));
 }
 
 function onSubmit(event) {
   event.preventDefault();
-  const msg = $('#form-msg');
-  msg.innerHTML = '';
+  document.querySelectorAll('.field-error').forEach((n) => n.remove());
+  document.querySelectorAll('.has-error').forEach((n) => n.classList.remove('has-error'));
 
   const size = Number($('#party_size').value);
-  const route = $('#route').value;
+  const route = selectedRoute();
   const expected = $('#expected_return').value;
+  const due = new Date(expected);
   const contact = $('#emergency_contact').value.trim();
-  const errors = [];
-  if (!Number.isInteger(size) || size < 1 || size > 20) errors.push('Party size must be between 1 and 20.');
-  if (!content.routes[route]) errors.push('Choose a valid route.');
-  if (!expected || Number.isNaN(new Date(expected).getTime())) errors.push('Expected return time is required.');
-  if (contact.length < 3) errors.push('An emergency contact is required.');
-  if (!$('#cultural_ack').checked) errors.push('Please confirm you have read the cultural protocols.');
 
-  if (errors.length) {
-    const list = el('ul', { class: 'clean' });
-    errors.forEach((m) => list.appendChild(el('li', { text: m })));
-    msg.appendChild(el('div', { class: 'msg error' }, [list]));
+  if (!Number.isInteger(size) || size < 1 || size > 20) fieldError('#f-size', 'Enter a number from 1 to 20.');
+  if (!content.routes[route]) fieldError('#f-route', 'Choose where you are going.');
+  if (!expected || Number.isNaN(due.getTime())) fieldError('#f-return', 'Choose when you will be back.');
+  else if (due.getTime() <= Date.now()) fieldError('#f-return', 'Choose a time later than now.');
+  if (contact.length < 3) fieldError('#f-contact', 'Add a name and phone number rangers can call.');
+  if (!$('#cultural_ack').checked) fieldError('#f-ack', 'Tick this box to confirm you have read the protocols.');
+
+  const firstError = document.querySelector('.has-error');
+  if (firstError) {
+    firstError.scrollIntoView({ block: 'center' });
     return;
   }
 
@@ -797,6 +1232,67 @@ function onSubmit(event) {
   writeStore(MINE_KEY, party.id);
   showReceipt(party);
   renderRanger();
+  $('#checkin').scrollIntoView({ block: 'start' });
+}
+
+function showForm() {
+  $('#receipt').hidden = true;
+  $('#receipt').innerHTML = '';
+  $('#checkin-form').hidden = false;
+  $('#checkin-form').reset();
+  const first = document.querySelector('input[name="route"]');
+  if (first) first.checked = true;
+  applyPick();
+  updateCta();
+}
+
+function countdownText(party) {
+  const diff = new Date(party.expected_return).getTime() - Date.now();
+  return diff > 0 ? `Due back in ${span(diff)}` : `Overdue by ${span(diff)}`;
+}
+
+let ticketParty = null;
+function showReceipt(party) {
+  ticketParty = party;
+  const box = $('#receipt');
+  box.innerHTML = '';
+  box.hidden = false;
+
+  const out = el('button', { class: 'btn', type: 'button', text: 'I am back: check out' });
+  const see = el('button', { class: 'btn secondary', type: 'button', text: 'See it on the ranger console' });
+  out.addEventListener('click', () => {
+    markReturned(party.id);
+    ticketParty = null;
+    $('#receipt').hidden = false;
+    $('#receipt').appendChild(el('div', { class: 'msg ok', text: 'You are checked out. Thanks for visiting Country safely.' }));
+  });
+  see.addEventListener('click', () => showTab('ranger'));
+
+  box.appendChild(el('div', { class: 'receipt' }, [
+    el('div', { class: 'receipt-head' }, [
+      el('div', {}, [el('div', { class: 'muted', text: 'You are checked in' }), el('div', { class: 'id', text: party.id })]),
+      el('div', { class: 'countdown', id: 'ticket-countdown', text: countdownText(party) }),
+    ]),
+    el('div', { class: 'receipt-body' }, [
+      el('dl', { class: 'kv' }, [
+        el('div', {}, [el('dt', { text: 'Route' }), el('dd', { text: routeName(party.route) })]),
+        el('div', {}, [el('dt', { text: 'Party' }), el('dd', { text: `${party.party_size} ${party.party_size === 1 ? 'person' : 'people'}` })]),
+        el('div', {}, [el('dt', { text: 'Back by' }), el('dd', { text: dayAndClock(party.expected_return) })]),
+      ]),
+      el('p', { class: 'muted', text: 'Remember to check out when you return. If you are not back by this time, rangers begin a search from this register.' }),
+      el('div', { class: 'actions' }, [out, see]),
+    ]),
+  ]));
+  $('#checkin-form').hidden = true;
+  tickTicket();
+  updateCta();
+}
+
+function tickTicket() {
+  const node = $('#ticket-countdown');
+  if (!node || !ticketParty) return;
+  node.textContent = countdownText(ticketParty);
+  node.classList.toggle('late', new Date(ticketParty.expected_return).getTime() <= Date.now());
 }
 
 /* ---------- ranger view ---------- */
@@ -809,6 +1305,7 @@ function renderRanger() {
   $('#tile-on').textContent = count('on-country');
   $('#tile-overdue').textContent = count('overdue');
   $('#tile-returned').textContent = count('returned');
+  $('#tile-overdue-box').classList.toggle('is-active', count('overdue') > 0);
 
   $('#demo-banner').hidden = !showSamples;
   $('#toggle-samples').textContent = showSamples ? 'Hide sample parties' : 'Show sample parties';
@@ -817,62 +1314,99 @@ function renderRanger() {
   alertBox.innerHTML = '';
   const overdue = parties.filter((p) => p.status === 'overdue');
   if (overdue.length) {
-    const names = overdue.map((p) => `${p.id} (${routeName(p.route)})`).join(', ');
-    alertBox.appendChild(el('div', {
-      class: 'msg error',
-      text: `OVERDUE: ${overdue.length} part${overdue.length === 1 ? 'y' : 'ies'} past expected return: ${names}. Begin search procedure.`,
-    }));
+    const names = overdue.map((p) => `${p.id} on ${routeName(p.route)}`).join('; ');
+    alertBox.appendChild(el('div', { class: 'alert', role: 'alert' }, [
+      el('span', { class: 'pulse' }),
+      el('div', {}, [
+        el('strong', { text: `${overdue.length} part${overdue.length === 1 ? 'y is' : 'ies are'} overdue. Begin the search procedure.` }),
+        names,
+      ]),
+    ]));
   }
 
   const order = { overdue: 0, 'on-country': 1, returned: 2 };
   parties.sort((a, b) => order[a.status] - order[b.status]
     || String(a.expected_return).localeCompare(String(b.expected_return)));
 
+  const label = { overdue: 'Overdue', 'on-country': 'On Country', returned: 'Returned' };
   const rows = $('#rows');
   rows.innerHTML = '';
   parties.forEach((p) => {
-    const late = Math.max(0, Math.round((Date.now() - new Date(p.expected_return).getTime()) / 60000));
-    const action = el('div', { class: 'actions' });
+    const diff = new Date(p.expected_return).getTime() - Date.now();
+    let when;
+    if (p.status === 'returned') when = `Back at ${dayAndClock(p.checked_out_at)}`;
+    else if (p.status === 'overdue') when = `${span(diff)} late`;
+    else when = `Due ${dayAndClock(p.expected_return)} (in ${span(diff)})`;
+
+    const side = el('div', { class: 'party-side' }, [el('div', { class: 'party-time', text: when })]);
     if (p.status !== 'returned') {
-      const btn = el('button', { class: 'btn small', type: 'button', text: 'Mark returned' });
+      const btn = el('button', { class: p.status === 'overdue' ? 'btn small' : 'btn secondary small', type: 'button', text: 'Mark returned' });
       btn.addEventListener('click', () => markReturned(p.id));
-      action.appendChild(btn);
-    } else {
-      action.appendChild(el('span', { class: 'muted', text: `Back ${fmt(p.checked_out_at)}` }));
+      side.appendChild(btn);
     }
-    rows.appendChild(el('tr', { class: p.status }, [
-      el('td', {}, [el('strong', { text: p.id }), p.sample ? el('span', { class: 'tag', text: 'sample' }) : null]),
-      el('td', { text: String(p.party_size) }),
-      el('td', { class: 'wrapcell', text: routeName(p.route) }),
-      el('td', { text: p.status === 'overdue' ? `${fmt(p.expected_return)} (${late} min late)` : fmt(p.expected_return) }),
-      el('td', { class: 'wrapcell', text: p.emergency_contact || '–' }),
-      el('td', {}, [el('span', { class: `status ${p.status}`, text: p.status.replace('-', ' ') })]),
-      el('td', {}, [action]),
+
+    rows.appendChild(el('article', { class: `party ${p.status}` }, [
+      el('div', { class: 'party-main' }, [
+        el('div', {}, [
+          el('span', { class: 'party-id', text: p.id }),
+          p.sample ? el('span', { class: 'tag', text: 'sample' }) : null,
+          ' ',
+          el('span', { class: `status ${p.status}`, text: label[p.status] }),
+        ]),
+        el('div', { class: 'party-route', text: `${routeName(p.route)} · ${p.party_size} ${p.party_size === 1 ? 'person' : 'people'}` }),
+        el('div', { class: 'party-meta', text: p.status === 'overdue'
+          ? `Was due ${dayAndClock(p.expected_return)} · Emergency contact: ${p.emergency_contact || 'none given'}`
+          : `Emergency contact: ${p.emergency_contact || 'none given'}` }),
+      ]),
+      side,
     ]));
   });
   $('#empty').hidden = parties.length > 0;
 }
 
-/* ---------- tabs ---------- */
+/* ---------- view switch and sticky button ---------- */
+let currentTab = 'visitor';
+let formInView = false;
+
+function updateCta() {
+  $('#cta-bar').hidden = currentTab !== 'visitor' || formInView || !$('#receipt').hidden;
+}
+
 function showTab(name) {
-  const ranger = name === 'ranger';
+  currentTab = name === 'ranger' ? 'ranger' : 'visitor';
+  const ranger = currentTab === 'ranger';
   $('#view-visitor').hidden = ranger;
   $('#view-ranger').hidden = !ranger;
   $('#tab-visitor').setAttribute('aria-selected', String(!ranger));
   $('#tab-ranger').setAttribute('aria-selected', String(ranger));
   if (ranger) renderRanger();
+  updateCta();
   window.scrollTo(0, 0);
 }
 
 /* ---------- boot ---------- */
 renderStatic();
+applyPick();
+
 $('#checkin-form').addEventListener('submit', onSubmit);
-$('#route').addEventListener('change', suggestReturn);
-$('#plus1').addEventListener('click', () => {
-  // datetime-local has minute precision, so round up to stay in the future.
-  $('#expected_return').value = localInputValue(new Date(Date.now() + 119000));
-  $('#expected_return').focus();
+$('#routes').addEventListener('change', applyPick);
+$('#expected_return').addEventListener('input', () => {
+  document.querySelectorAll('#return-chips .pick').forEach((b) => b.setAttribute('aria-pressed', 'false'));
+  describeReturn();
 });
+$('#return-chips').addEventListener('click', (e) => {
+  const btn = e.target.closest('.pick');
+  if (!btn) return;
+  document.querySelectorAll('#return-chips .pick').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+  applyPick();
+});
+const bump = (delta) => {
+  const input = $('#party_size');
+  input.value = Math.min(20, Math.max(1, (Number(input.value) || 1) + delta));
+};
+$('#size-minus').addEventListener('click', () => bump(-1));
+$('#size-plus').addEventListener('click', () => bump(1));
+
 $('#tab-visitor').addEventListener('click', () => showTab('visitor'));
 $('#tab-ranger').addEventListener('click', () => showTab('ranger'));
 
@@ -894,10 +1428,19 @@ $('#reset').addEventListener('click', () => {
   btn.textContent = 'Clear my check-ins';
   writeStore(REG_KEY, []);
   writeStore(MINE_KEY, null);
-  $('#receipt').hidden = true;
-  $('#checkin-form').hidden = false;
+  ticketParty = null;
+  showForm();
   renderRanger();
 });
+
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver((entries) => {
+    formInView = entries[0].isIntersecting;
+    updateCta();
+  }, { threshold: 0.05 }).observe($('#checkin'));
+} else {
+  formInView = true;
+}
 
 const mineId = readStore(MINE_KEY, null);
 const mine = mineId && getRegister().find((p) => p.id === mineId && !p.checked_out_at);
@@ -905,6 +1448,7 @@ if (mine) showReceipt(mine);
 
 showTab(location.hash === '#ranger' ? 'ranger' : 'visitor');
 renderRanger();
+setInterval(() => { tickTicket(); describeReturn(); }, 1000);
 setInterval(renderRanger, 5000);
 window.addEventListener('storage', renderRanger);
 </script>
